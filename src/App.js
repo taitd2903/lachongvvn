@@ -74,24 +74,66 @@ const Diemso = () => {
   };
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      <div style={{ textAlign: "center", padding: "10px", fontSize: "4vw" }}>
-        ⏱ {formatTime(time)}
-        <div style={{ fontSize: "2vw", color: running ? "green" : "red" }}>
-          {running ? "Đang chạy" : "Tạm dừng"} | Hiệp {hiep}
-        </div>
-      </div>
+ <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      padding: "10px",
+      fontSize: "4vw",
+      position: "relative",
+    }}
+  >
+    {/* Logo ở góc trái */}
+    <img
+      src="/path/to/your/logo.png"
+      alt="Logo"
+      style={{
+        height: "8vw", // khớp với fontSize 4vw của timer
+        width: "auto", // hoặc đặt width: '5vw' nếu muốn cố định
+        marginRight: "10px",
+      }}
+    />
 
-    
-      <div style={{ display: "flex", flex: 1 }}>
-        <div style={{ flex: 1, backgroundColor: "red", color: "white", fontSize: "10vw", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          {red}
-        </div>
-        <div style={{ flex: 1, backgroundColor: "blue", color: "white", fontSize: "10vw", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          {blue}
-        </div>
+    {/* Bộ đếm thời gian + trạng thái */}
+    <div style={{ textAlign: "center", flex: 1 }}>
+      ⏱ {formatTime(time)}
+      <div style={{ fontSize: "2vw", color: running ? "green" : "red" }}>
+        {running ? "Đang chạy" : "Tạm dừng"} | Hiệp {hiep}
       </div>
     </div>
+  </div>
+
+  <div style={{ display: "flex", flex: 1 }}>
+    <div
+      style={{
+        flex: 1,
+        backgroundColor: "red",
+        color: "white",
+        fontSize: "25vw",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {red}
+    </div>
+    <div
+      style={{
+        flex: 1,
+        backgroundColor: "blue",
+        color: "white",
+        fontSize: "20vw",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {blue}
+    </div>
+  </div>
+</div>
+
   );
 };
 
