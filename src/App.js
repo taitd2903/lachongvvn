@@ -3,7 +3,7 @@ import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import io from "socket.io-client";
 import "./App.css";
 
-const socket = io("http://localhost:4000", { transports: ["websocket"] });
+const socket = io("https://quizzserver-3ylm.onrender.com/", { transports: ["websocket"] });
 
 const Chamdiem = () => {
   const updateScore = (team, delta) => {
