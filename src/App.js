@@ -82,23 +82,25 @@ const Diemso = () => {
       padding: "10px",
       fontSize: "4vw",
       position: "relative",
+      backgroundColor: "#084D77",
     }}
   >
     {/* Logo ở góc trái */}
     <img
-      src="/path/to/your/logo.png"
+      src="/lachonglogo.jpg"
       alt="Logo"
       style={{
         height: "8vw", // khớp với fontSize 4vw của timer
         width: "auto", // hoặc đặt width: '5vw' nếu muốn cố định
         marginRight: "10px",
+        position: "absolute",
       }}
     />
 
     {/* Bộ đếm thời gian + trạng thái */}
-    <div style={{ textAlign: "center", flex: 1 }}>
+    <div style={{ textAlign: "center", flex: 1,color: "white" }}>
       ⏱ {formatTime(time)}
-      <div style={{ fontSize: "2vw", color: running ? "green" : "red" }}>
+      <div style={{ fontSize: "2vw", color: running ? "white" : "white" }}>
         {running ? "Đang chạy" : "Tạm dừng"} | Hiệp {hiep}
       </div>
     </div>
@@ -145,78 +147,101 @@ const Bodem = () => {
   const [seconds, setSeconds] = useState(0);
   const [hiep, setHiep] = useState(1);
   const [isRunning, setIsRunning] = useState(false);
+  const [displayTime, setDisplayTime] = useState(0); // ⏱ thời gian realtime hiển thị
 
   const setTimer = () => {
     const totalSeconds = parseInt(minutes) * 60 + parseInt(seconds);
     socket.emit("set_timer", { time: totalSeconds, hiep });
   };
 
+  const formatTime = (t) => {
+    const m = Math.floor(t / 60);
+    const s = t % 60;
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+
   const start = () => socket.emit("start_timer");
   const pause = () => socket.emit("pause_timer");
   const reset = () => socket.emit("reset_timer");
 
-return (
-  <div className="control-container">
-    <h1>Điều khiển bộ đếm</h1>
- <div className="time-input-group">
-  <div className="time-input">
-    <label>Số phút:</label>
-    <div className="number-control">
-      <button onClick={() => setMinutes((prev) => Math.max(0, Number(prev) - 1))}>-</button>
-      <input
-        type="number"
-        value={minutes}
-        onChange={(e) => setMinutes(e.target.value)}
-        min="0"
-        step="1"
-      />
-      <button onClick={() => setMinutes((prev) => Number(prev) + 1)}>+</button>
+  useEffect(() => {
+    const handleTimerUpdate = ({ time, running, hiep }) => {
+      setDisplayTime(time);   // chỉ thay đổi đồng hồ hiển thị
+      setHiep(hiep);
+      setIsRunning(running);
+    };
+
+    socket.on("timer_update", handleTimerUpdate);
+
+    return () => socket.off("timer_update", handleTimerUpdate);
+  }, []);
+
+  return (
+    <div className="control-container">
+      <h1>Điều khiển bộ đếm</h1>   
+      <h1> ⏱ {formatTime(displayTime)}</h1>           
+     
+
+      <div className="time-input-group">
+        <div className="time-input">
+          <label>Số phút:</label>
+          <div className="number-control">
+            <button onClick={() => setMinutes((prev) => Math.max(0, Number(prev) - 1))}>-</button>
+            <input
+              type="number"
+              value={minutes}
+              onChange={(e) => setMinutes(e.target.value)}
+              min="0"
+              step="1"
+            />
+            <button onClick={() => setMinutes((prev) => Number(prev) + 1)}>+</button>
+          </div>
+        </div>
+
+        <div className="time-input">
+          <label>Số giây:</label>
+          <div className="number-control">
+            <button onClick={() => setSeconds((prev) => Math.max(0, Number(prev) - 1))}>-</button>
+            <input
+              type="number"
+              value={seconds}
+              onChange={(e) => setSeconds(e.target.value)}
+              min="0"
+              max="59"
+              step="1"
+            />
+            <button onClick={() => setSeconds((prev) => Math.min(59, Number(prev) + 1))}>+</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label>Hiệp: </label>
+        <select value={hiep} onChange={(e) => setHiep(parseInt(e.target.value))}>
+          {[1, 2, 3, 4, 5].map((h) => (
+            <option key={h} value={h}>Hiệp {h}</option>
+          ))}
+        </select>
+      </div>
+
+      <button onClick={setTimer}>Đặt thời gian</button>
+      <button onClick={() => {
+        if (isRunning) {
+          pause();          
+          setIsRunning(false);
+        } else {
+          start();       
+          setIsRunning(true);
+        }
+      }}>
+        {isRunning ? 'Tạm dừng' : 'Bắt đầu'}
+      </button>
+
+      <button onClick={reset}>Reset</button>
     </div>
-  </div>
-
-  <div className="time-input">
-    <label>Số giây:</label>
-    <div className="number-control">
-      <button onClick={() => setSeconds((prev) => Math.max(0, Number(prev) - 1))}>-</button>
-      <input
-        type="number"
-        value={seconds}
-        onChange={(e) => setSeconds(e.target.value)}
-        min="0"
-        max="59"
-        step="1"
-      />
-      <button onClick={() => setSeconds((prev) => Math.min(59, Number(prev) + 1))}>+</button>
-    </div>
-  </div>
-</div>
-
-    <div>
-      <label>Hiệp: </label>
-      <select value={hiep} onChange={(e) => setHiep(parseInt(e.target.value))}>
-        {[1, 2, 3, 4, 5].map((h) => (
-          <option key={h} value={h}>Hiệp {h}</option>
-        ))}
-      </select>
-    </div>
-    <button onClick={setTimer}>Đặt thời gian</button>
-   <button onClick={() => {
-  if (isRunning) {
-    pause();          
-    setIsRunning(false);
-  } else {
-    start();       
-    setIsRunning(true);
-  }
-}}>
-  {isRunning ? 'Tạm dừng' : 'Bắt đầu'}
-</button>
-
-    <button onClick={reset}>Reset</button>
-  </div>
-);
-
+  );
 };
+
 
 
 
